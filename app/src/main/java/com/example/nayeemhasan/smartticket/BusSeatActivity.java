@@ -1,6 +1,7 @@
 package com.example.nayeemhasan.smartticket;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -11,11 +12,30 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 public class BusSeatActivity extends AppCompatActivity {
 
     TextView busNameText, busTimeText, busFareText;
     public CheckBox[][] checkBox;
     int ticketCnt;
+
+    private ArrayList<String> checkedSeats;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +45,13 @@ public class BusSeatActivity extends AppCompatActivity {
         busNameText = (TextView) findViewById(R.id.textView10);
         busTimeText = (TextView) findViewById(R.id.busTime);
         busFareText = (TextView) findViewById(R.id.busFare);
+
         final Intent intent = getIntent();
+        final String userName = intent.getStringExtra("user_Name");
+        final String date = intent.getStringExtra("date");
+        final String time = intent.getStringExtra("bus_Time");
+        final String routeId = intent.getStringExtra("route_id");
+        int route_id = Integer.parseInt(routeId);
 
         busNameText.setText(intent.getStringExtra("bus_Name"));
         busTimeText.setText(intent.getStringExtra("bus_Time"));
@@ -93,15 +119,66 @@ public class BusSeatActivity extends AppCompatActivity {
                 }
             }
         }
+        checkedSeats = new ArrayList<>();
 
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+         StringRequest jor = new StringRequest(Request.Method.POST,
+                "http://192.168.43.217:1234/SmartTicket/viewCheckedSeats.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray jsonArray = new JSONArray(response);
+                            checkedSeats.clear();
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject j = jsonArray.getJSONObject(i);
+                                checkedSeats.add(j.getString("seat_no"));
+                            }
+                            handleCheckedSeats();
+                            //busNameText.setText(checkedSeats.toString());
+                        }
+                        catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(BusSeatActivity.this, "Unknown Error" , Toast.LENGTH_SHORT).show();
+                    }
+                })
+         {
+             @Override
+             protected Map<String, String> getParams() throws AuthFailureError {
+                 Map<String, String> p = new HashMap<>();
+                 p.put("id", routeId);
+                 p.put("journeyDate", date);
+                 p.put("journeyTime", time);
+                 return p;
+             }
+         };
+
+        requestQueue.add(jor);
+
+        final ArrayList<String> tickets = new ArrayList<>();
         ticketCnt = 0;
         for (int i=1; i<=8; i++) {
             for (int j = 1; j <= 4; j++) {
+                final int a = i;
+                final int b = j;
                 checkBox[i][j].setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                        if (isChecked == true) ticketCnt++;
-                        else ticketCnt--;
+                        if (isChecked == true ) {
+                            ticketCnt++;
+                            tickets.add(checkBox[a][b].getText().toString());
+                        }
+                        else {
+                            ticketCnt--;
+                            tickets.remove(checkBox[a][b].getText().toString());
+                        }
                     }
                 });
             }
@@ -117,6 +194,18 @@ public class BusSeatActivity extends AppCompatActivity {
                     intent1.putExtra("bus_Name", busNameText.getText().toString());
                     intent1.putExtra("ticket_Fare", busFare);
                     intent1.putExtra("ticket_Cnt", String.valueOf(ticketCnt));
+
+                    intent1.putExtra("user_Name",userName);
+                    intent1.putExtra("date",date);
+                    intent1.putExtra("time",time);
+                    intent1.putExtra("route_id",routeId);
+
+                    for(int i=1; i<= ticketCnt; i++){
+                        if (i==1) intent1.putExtra("t1",tickets.get(0).toString());
+                        else if (i==2) intent1.putExtra("t2",tickets.get(1).toString());
+                        else if (i==3) intent1.putExtra("t3",tickets.get(2).toString());
+                        else if (i==4) intent1.putExtra("t4",tickets.get(3).toString());
+                    }
                     startActivity(intent1);
                 }
                 else if (ticketCnt == 0){
@@ -127,5 +216,19 @@ public class BusSeatActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void handleCheckedSeats(){
+        for (int i=1; i<=8; i++) {
+            for (int j = 1; j <= 4; j++) {
+                for (int k=0; k < checkedSeats.size(); k++) {
+                    if (checkBox[i][j].getText().toString().matches(checkedSeats.get(k))) {
+                        checkBox[i][j].setBackgroundColor(Color.LTGRAY);
+                        //checkBox[i][j].setChecked(true);
+                        checkBox[i][j].setClickable(false);
+                    }
+                }
+            }
+        }
     }
 }

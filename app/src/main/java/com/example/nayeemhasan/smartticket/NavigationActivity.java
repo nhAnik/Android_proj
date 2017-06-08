@@ -22,6 +22,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
@@ -36,6 +37,10 @@ public class NavigationActivity extends AppCompatActivity
     java.util.Calendar myCalendar;
 
     Button submitButton, cancelButon;
+
+    String userName;
+
+    TextView userNameText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,13 @@ public class NavigationActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View header = navigationView.getHeaderView(0);
+
+        Intent loginIntent = getIntent();
+        userName = loginIntent.getStringExtra("user_Name");
+
+        userNameText = (TextView) header.findViewById(R.id.UserNameText);
+        userNameText.setText(userName);
 
         fromText = (EditText) findViewById(R.id.EditTextFrom);
         toText = (EditText) findViewById(R.id.EditTextTo);
@@ -119,14 +131,16 @@ public class NavigationActivity extends AppCompatActivity
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (dateText.getText().toString() == ""){
-                    submitButton.setFocusable(false);
-                    Toast.makeText(NavigationActivity.this, "Complete Everything", Toast.LENGTH_SHORT).show();
+                if (dateText.getText().toString().matches("")){
+                    Toast.makeText(NavigationActivity.this, "Journey date missing", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Intent intent = new Intent(NavigationActivity.this, BusListActivity.class);
                     intent.putExtra("from",fromText.getText().toString());
                     intent.putExtra("to",toText.getText().toString());
+
+                    intent.putExtra("date",dateText.getText().toString());
+                    intent.putExtra("user_Name",userName);
                     startActivity(intent);
                 }
             }
