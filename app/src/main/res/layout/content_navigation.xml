@@ -114,9 +114,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="Press in the blank space to set date"
+            android:text="Press the blank space to set date"
             android:textAppearance="@android:style/TextAppearance.Large"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/lightRed" />
     </LinearLayout>
 
     <LinearLayout
@@ -131,7 +131,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
             android:layout_weight="1"
-            android:background="?attr/colorPrimary"
+            android:background="@color/colorPrimaryDark"
             android:text="Submit" />
 
         <Button

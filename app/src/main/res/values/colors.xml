@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3f51b5</color>
-    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorPrimary">#00695c</color>
+    <color name="colorPrimaryDark">#26a69a</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorAccentNew">#FF7081</color>
     <item name="blue" type="color">#FF33B5E5</item>
@@ -15,4 +15,10 @@
     <item name="darkorange" type="color">#FFFF8800</item>
     <item name="darkred" type="color">#FFCC0000</item>
     <item name="white" type="color">#00000000</item>
+
+    <color name="teal">#26a69a</color>
+    <color name="blueGray">#673ab7</color>
+    <color name="lightRed">#ef5350</color>
+
+    <color name="navColor">#2b414c</color>
 </resources>

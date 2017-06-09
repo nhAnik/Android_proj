@@ -2,6 +2,7 @@ package com.example.nayeemhasan.smartticket;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -37,6 +38,9 @@ public class BusSeatActivity extends AppCompatActivity {
 
     private ArrayList<String> checkedSeats;
 
+    RequestQueue requestQueue;
+
+    BusSeatTask busSeatTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,46 +125,10 @@ public class BusSeatActivity extends AppCompatActivity {
         }
         checkedSeats = new ArrayList<>();
 
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue = Volley.newRequestQueue(this);
 
-         StringRequest jor = new StringRequest(Request.Method.POST,
-                "http://192.168.43.217:1234/SmartTicket/viewCheckedSeats.php",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONArray jsonArray = new JSONArray(response);
-                            checkedSeats.clear();
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject j = jsonArray.getJSONObject(i);
-                                checkedSeats.add(j.getString("seat_no"));
-                            }
-                            handleCheckedSeats();
-                            //busNameText.setText(checkedSeats.toString());
-                        }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(BusSeatActivity.this, "Unknown Error" , Toast.LENGTH_SHORT).show();
-                    }
-                })
-         {
-             @Override
-             protected Map<String, String> getParams() throws AuthFailureError {
-                 Map<String, String> p = new HashMap<>();
-                 p.put("id", routeId);
-                 p.put("journeyDate", date);
-                 p.put("journeyTime", time);
-                 return p;
-             }
-         };
-
-        requestQueue.add(jor);
+        busSeatTask = new BusSeatTask();
+        busSeatTask.execute(routeId, date, time);
 
         final ArrayList<String> tickets = new ArrayList<>();
         ticketCnt = 0;
@@ -224,11 +192,60 @@ public class BusSeatActivity extends AppCompatActivity {
                 for (int k=0; k < checkedSeats.size(); k++) {
                     if (checkBox[i][j].getText().toString().matches(checkedSeats.get(k))) {
                         checkBox[i][j].setBackgroundColor(Color.LTGRAY);
-                        //checkBox[i][j].setChecked(true);
                         checkBox[i][j].setClickable(false);
                     }
                 }
             }
+        }
+    }
+
+
+    private class BusSeatTask extends AsyncTask<String,Void,Void>
+    {
+        @Override
+        protected Void doInBackground(String... params) {
+            final String routeId_ = params[0];
+            final String date_ = params[1];
+            final String time_ = params[2];
+
+            StringRequest jor = new StringRequest(Request.Method.POST,
+                    "http://192.168.43.94:1234/SmartTicket/viewCheckedSeats.php",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONArray jsonArray = new JSONArray(response);
+                                checkedSeats.clear();
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject j = jsonArray.getJSONObject(i);
+                                    checkedSeats.add(j.getString("seat_no"));
+                                }
+                                handleCheckedSeats();
+                            }
+                            catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Toast.makeText(BusSeatActivity.this, "Unknown Error" , Toast.LENGTH_SHORT).show();
+                        }
+                    })
+            {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String, String> p = new HashMap<>();
+                    p.put("id", routeId_);
+                    p.put("journeyDate", date_);
+                    p.put("journeyTime", time_);
+                    return p;
+                }
+            };
+
+            requestQueue.add(jor);
+            return null;
         }
     }
 }

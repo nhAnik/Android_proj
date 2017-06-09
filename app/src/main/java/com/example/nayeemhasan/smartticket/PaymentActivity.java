@@ -1,5 +1,6 @@
 package com.example.nayeemhasan.smartticket;
 
+import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -67,7 +68,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
-        url = "http://192.168.43.217:1234/SmartTicket/insertUser.php";
+        url = "http://192.168.43.94:1234/SmartTicket/insertUser.php";
         if (count == 1){
             t1 = intent.getStringExtra("t1");
             //url = url + "&t1=" + t1;
@@ -142,7 +143,14 @@ public class PaymentActivity extends AppCompatActivity {
             }
         });
 
-
+        cancelPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CancelDialogFragment cancelDialogFragment = new CancelDialogFragment();
+                DialogFragment dialogFragment = cancelDialogFragment;
+                dialogFragment.show(getFragmentManager(),"CancelFirst");
+            }
+        });
     }
 
 }

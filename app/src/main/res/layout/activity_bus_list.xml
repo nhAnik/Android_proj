@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:divider="@color/colorPrimaryDark"
+        android:divider="@color/blueGray"
         android:dividerHeight="2dp" />
 
 </LinearLayout>

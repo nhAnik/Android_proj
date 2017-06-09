@@ -1,5 +1,6 @@
 package com.example.nayeemhasan.smartticket;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
@@ -40,15 +41,14 @@ public class BusListActivity extends AppCompatActivity {
 
     private ArrayList<Transport> transports;
     private ListView busList;
-    TextView textView;
-
     BusAdapter busAdapter;
+    BusListTask busListTask;
 
+    TextView textView;
     RequestQueue requestQueue;
 
     String date , userName, routeId;
 
-    BusListTask busListTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -147,7 +147,7 @@ public class BusListActivity extends AppCompatActivity {
             String from = params[0];
             String to = params[1];
             JsonArrayRequest jor = new JsonArrayRequest(Request.Method.GET,
-                    "http://192.168.43.217:1234/SmartTicket/viewTransport.php?start=" + from + "&dest=" + to,
+                    "http://192.168.43.94:1234/SmartTicket/viewTransport.php?start=" + from + "&dest=" + to,
                     null,
                     new Response.Listener<JSONArray>() {
                         @Override
@@ -171,7 +171,7 @@ public class BusListActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(BusListActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(BusListActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
                         }
                     });
 
