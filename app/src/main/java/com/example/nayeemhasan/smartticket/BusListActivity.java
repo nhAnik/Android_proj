@@ -171,7 +171,7 @@ public class BusListActivity extends AppCompatActivity {
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            Toast.makeText(BusListActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(BusListActivity.this, "Connection Error", Toast.LENGTH_SHORT).show();
                         }
                     });
 
